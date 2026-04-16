@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customize your order — PrintCraft ZA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #1a1a18;
+    --white: #faf9f6;
+    --cream: #f2efe8;
+    --purple: #6c5ce7;
+    --purple-light: #ede9fb;
+    --purple-dark: #4a3db5;
+    --coral: #e07055;
+    --teal: #1d9e75;
+    --border: rgba(26,26,24,0.12);
+    --radius: 12px;
+    --radius-lg: 20px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--black); line-height: 1.6; min-height: 100vh; }
+
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 40px;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--black); text-decoration: none; }
+  .back-link { font-size: 14px; color: rgba(26,26,24,0.5); text-decoration: none; display: flex; align-items: center; gap: 6px; }
+  .back-link:hover { color: var(--black); }
+
+  /* STEPS */
+  .steps-bar {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0; padding: 24px 40px;
+    background: var(--white); border-bottom: 1px solid var(--border);
+  }
+  .step-item { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .step-circle {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--cream); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 500; transition: all 0.2s;
+  }
+  .step-item.active .step-circle { background: var(--purple); color: var(--white); border-color: var(--purple); }
+  .step-item.done .step-circle { background: var(--teal); color: var(--white); border-color: var(--teal); }
+  .step-label { font-size: 14px; color: rgba(26,26,24,0.5); }
+  .step-item.active .step-label { color: var(--black); font-weight: 500; }
+  .step-connector { width: 48px; height: 1px; background: var(--border); margin: 0 8px; }
+
+  /* LAYOUT */
+  .page-layout {
+    max-width: 1100px; margin: 0 auto; padding: 40px;
+    display: grid; grid-template-columns: 1fr 380px; gap: 32px;
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .page-layout { grid-template-columns: 1fr; padding: 24px 20px; }
+    nav { padding: 14px 20px; }
+    .steps-bar { padding: 16px 20px; gap: 0; }
+    .step-connector { width: 24px; }
+  }
+
+  /* PAGES */
+  .page { display: none; }
+  .page.active { display: contents; }
+
+  /* CARD */
+  .card {
+    background: var(--white); border-radius: var(--radius-lg);
+    border: 1px solid var(--border); padding: 28px;
+  }
+  .card-title { font-family: 'DM Serif Display', serif; font-size: 22px; margin-bottom: 24px; }
+
+  /* PRODUCTS */
+  .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .product-option {
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px; cursor: pointer; transition: all 0.15s;
+    display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;
+  }
+  .product-option:hover { border-color: var(--purple); background: var(--purple-light); }
+  .product-option.selected { border-color: var(--purple); background: var(--purple-light); border-width: 2px; }
+  .product-option .emoji { font-size: 32px; }
+  .product-option .name { font-weight: 500; font-size: 14px; }
+  .product-option .price { font-size: 13px; color: rgba(26,26,24,0.5); }
+
+  /* CUSTOMIZER CONTROLS */
+  .control-group { margin-bottom: 20px; }
+  .control-label { font-size: 13px; font-weight: 500; color: rgba(26,26,24,0.6); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: block; }
+  input[type=text], input[type=number], input[type=email], select, textarea {
+    width: 100%; padding: 10px 14px;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif; font-size: 15px;
+    background: var(--white); color: var(--black);
+    transition: border-color 0.15s;
+    outline: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--purple); }
+  .char-count { font-size: 12px; color: rgba(26,26,24,0.4); text-align: right; margin-top: 4px; }
+
+  .shape-row { display: flex; gap: 10px; }
+  .shape-btn {
+    flex: 1; padding: 8px 4px; border: 1px solid var(--border);
+    border-radius: var(--radius); font-size: 13px; cursor: pointer;
+    background: var(--white); color: rgba(26,26,24,0.6);
+    font-family: 'DM Sans', sans-serif; text-align: center;
+    transition: all 0.15s;
+  }
+  .shape-btn:hover { border-color: var(--purple); color: var(--purple); }
+  .shape-btn.active { border-color: var(--purple); background: var(--purple-light); color: var(--purple-dark); border-width: 2px; font-weight: 500; }
+
+  .color-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .color-swatch {
+    width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+    border: 3px solid transparent; transition: all 0.15s;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+  }
+  .color-swatch.active { border-color: var(--black); transform: scale(1.15); }
+
+  /* PREVIEW */
+  .preview-card { position: sticky; top: 100px; }
+  .preview-canvas-wrap {
+    background: var(--cream); border-radius: var(--radius-lg);
+    height: 220px; display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  canvas#previewCanvas { max-width: 100%; }
+
+  /* ORDER SUMMARY */
+  .summary-row { display: flex; justify-content: space-between; font-size: 14px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .summary-row:last-of-type { border-bottom: none; }
+  .summary-row.total { font-weight: 500; font-size: 16px; padding-top: 12px; }
+  .summary-label { color: rgba(26,26,24,0.6); }
+
+  /* BUTTONS */
+  .btn-full {
+    width: 100%; padding: 14px; border-radius: 100px;
+    background: var(--black); color: var(--white);
+    border: none; font-family: 'DM Sans', sans-serif;
+    font-size: 15px; font-weight: 500; cursor: pointer;
+    transition: background 0.2s; margin-top: 16px;
+  }
+  .btn-full:hover { background: var(--purple); }
+  .btn-outline {
+    width: 100%; padding: 12px; border-radius: 100px;
+    background: transparent; color: var(--black);
+    border: 1px solid var(--border);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; cursor: pointer;
+    transition: border-color 0.2s; margin-top: 10px;
+  }
+  .btn-outline:hover { border-color: var(--black); }
+
+  /* DELIVERY & PAYMENT */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 500px) { .two-col { grid-template-columns: 1fr; } .product-grid { grid-template-columns: 1fr 1fr; } }
+
+  .payment-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .payment-option {
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px; text-align: center; cursor: pointer; transition: all 0.15s;
+  }
+  .payment-option:hover { border-color: var(--purple); }
+  .payment-option.selected { border-color: var(--purple); background: var(--purple-light); border-width: 2px; }
+  .payment-option .pay-name { font-weight: 500; font-size: 15px; margin-bottom: 4px; }
+  .payment-option .pay-sub { font-size: 12px; color: rgba(26,26,24,0.5); }
+
+  /* SUCCESS */
+  .success-page {
+    max-width: 520px; margin: 80px auto; padding: 0 20px;
+    text-align: center;
+  }
+  .success-icon { font-size: 56px; margin-bottom: 24px; }
+  .success-page h1 { font-family: 'DM Serif Display', serif; font-size: 36px; margin-bottom: 12px; }
+  .success-page p { color: rgba(26,26,24,0.6); font-size: 16px; margin-bottom: 8px; }
+  .order-ref { font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--purple); margin: 24px 0; }
+  .success-steps { background: var(--white); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--border); text-align: left; margin: 24px 0; }
+  .success-step { display: flex; gap: 12px; align-items: flex-start; padding: 8px 0; font-size: 14px; color: rgba(26,26,24,0.7); }
+  .success-step::before { content: '✓'; color: var(--teal); font-weight: 500; flex-shrink: 0; }
+
+  .info-note { background: var(--purple-light); border-radius: var(--radius); padding: 12px 16px; font-size: 13px; color: var(--purple-dark); margin-top: 16px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="index.html">PrintCraft ZA</a>
+  <a class="back-link" href="index.html">← Back to shop</a>
+</nav>
+
+<div class="steps-bar" id="stepsBar">
+  <div class="step-item active" id="stepItem-design" onclick="goToStep('design')">
+    <div class="step-circle" id="stepCircle-design">1</div>
+    <span class="step-label">Design</span>
+  </div>
+  <div class="step-connector"></div>
+  <div class="step-item" id="stepItem-delivery" onclick="goToStep('delivery')">
+    <div class="step-circle" id="stepCircle-delivery">2</div>
+    <span class="step-label">Delivery</span>
+  </div>
+  <div class="step-connector"></div>
+  <div class="step-item" id="stepItem-payment" onclick="goToStep('payment')">
+    <div class="step-circle" id="stepCircle-payment">3</div>
+    <span class="step-label">Payment</span>
+  </div>
+</div>
+
+<!-- DESIGN STEP -->
+<div id="step-design">
+  <div class="page-layout">
+    <div>
+      <div class="card" style="margin-bottom:24px">
+        <div class="card-title">Choose a product</div>
+        <div class="product-grid">
+          <div class="product-option selected" id="opt-keychain" onclick="selectProduct('keychain',85,'Keychain')">
+            <div class="emoji">🔑</div>
+            <div class="name">Keychain</div>
+            <div class="price">R85</div>
+          </div>
+          <div class="product-option" id="opt-nameplate" onclick="selectProduct('nameplate',120,'Name plate')">
+            <div class="emoji">🏷️</div>
+            <div class="name">Name plate</div>
+            <div class="price">R120</div>
+          </div>
+          <div class="product-option" id="opt-phone" onclick="selectProduct('phone',150,'Phone stand')">
+            <div class="emoji">📱</div>
+            <div class="name">Phone stand</div>
+            <div class="price">R150</div>
+          </div>
+          <div class="product-option" id="opt-planter" onclick="selectProduct('planter',95,'Mini planter')">
+            <div class="emoji">🌿</div>
+            <div class="name">Mini planter</div>
+            <div class="price">R95</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Customise it</div>
+
+        <div class="control-group">
+          <label class="control-label">Your name or text</label>
+          <input type="text" id="nameInput" placeholder="e.g. Thabo, Mom, Class of 2025" maxlength="14" oninput="onNameInput()">
+          <div class="char-count"><span id="charCount">0</span>/14</div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Shape</label>
+          <div class="shape-row">
+            <button class="shape-btn active" id="shape-rect" onclick="setShape('rect')">Rectangle</button>
+            <button class="shape-btn" id="shape-round" onclick="setShape('round')">Rounded</button>
+            <button class="shape-btn" id="shape-heart" onclick="setShape('heart')">Heart</button>
+            <button class="shape-btn" id="shape-star" onclick="setShape('star')">Star</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Colour</label>
+          <div class="color-row">
+            <div class="color-swatch active" style="background:#6c5ce7" data-color="#6c5ce7" data-text="#fff" onclick="setColor(this)"></div>
+            <div class="color-swatch" style="background:#e07055" data-color="#e07055" data-text="#fff" onclick="setColor(this)"></div>
+            <div class="color-swatch" style="background:#1d9e75" data-color="#1d9e75" data-text="#fff" onclick="setColor(this)"></div>
+            <div class="color-swatch" style="background:#378add" data-color="#378add" data-text="#fff" onclick="setColor(this)"></div>
+            <div class="color-swatch" style="background:#e24b4a" data-color="#e24b4a" data-text="#fff" onclick="setColor(this)"></div>
+            <div class="color-swatch" style="background:#f0a500" data-color="#f0a500" data-text="#fff" onclick="setColor(this)"></div>
+            <div class="color-swatch" style="background:#1a1a18;border:1px solid #ccc" data-color="#1a1a18" data-text="#fff" onclick="setColor(this)"></div>
+            <div class="color-swatch" style="background:#faf9f6;border:1px solid #ccc" data-color="#faf9f6" data-text="#1a1a18" onclick="setColor(this)"></div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Quantity</label>
+          <input type="number" id="qty" min="1" max="50" value="1" style="width:100px" oninput="updateSummary()">
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-card">
+      <div class="card">
+        <div class="card-title">Preview</div>
+        <div class="preview-canvas-wrap">
+          <canvas id="previewCanvas" width="320" height="180"></canvas>
+        </div>
+        <div class="info-note">This is a preview. Your actual print may vary slightly in texture and finish.</div>
+        <div style="height:1px;background:var(--border);margin:20px 0"></div>
+        <div class="summary-row"><span class="summary-label" id="product-summary-label">Keychain × 1</span><span id="product-summary-price">R85</span></div>
+        <div class="summary-row"><span class="summary-label">Printing fee</span><span>R30</span></div>
+        <div class="summary-row"><span class="summary-label">Delivery (standard)</span><span>R65</span></div>
+        <div class="summary-row total"><span>Total</span><span id="total-display">R180</span></div>
+        <button class="btn-full" onclick="goToStep('delivery')">Continue to delivery →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DELIVERY STEP -->
+<div id="step-delivery" style="display:none">
+  <div class="page-layout">
+    <div class="card">
+      <div class="card-title">Delivery details</div>
+      <div class="control-group">
+        <label class="control-label">Full name</label>
+        <input type="text" id="del-name" placeholder="Your full name">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Phone number</label>
+        <input type="text" id="del-phone" placeholder="+27 82 000 0000">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Email address</label>
+        <input type="email" id="del-email" placeholder="you@email.com">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Street address</label>
+        <input type="text" id="del-addr" placeholder="123 Main Street, Unit 4">
+      </div>
+      <div class="two-col">
+        <div class="control-group">
+          <label class="control-label">City</label>
+          <input type="text" id="del-city" placeholder="Johannesburg">
+        </div>
+        <div class="control-group">
+          <label class="control-label">Postal code</label>
+          <input type="text" id="del-postal" placeholder="2000">
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Province</label>
+        <select id="del-prov">
+          <option value="">Select province</option>
+          <option>Gauteng</option>
+          <option>Western Cape</option>
+          <option>KwaZulu-Natal</option>
+          <option>Eastern Cape</option>
+          <option>Limpopo</option>
+          <option>Mpumalanga</option>
+          <option>North West</option>
+          <option>Free State</option>
+          <option>Northern Cape</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Delivery notes (optional)</label>
+        <textarea id="del-notes" rows="2" placeholder="e.g. Leave at front gate, call on arrival..."></textarea>
+      </div>
+    </div>
+
+    <div class="preview-card">
+      <div class="card">
+        <div class="card-title">Order summary</div>
+        <div class="summary-row"><span class="summary-label" id="del-product-label">Keychain × 1</span><span id="del-product-price">R85</span></div>
+        <div class="summary-row"><span class="summary-label">Printing fee</span><span>R30</span></div>
+        <div class="summary-row"><span class="summary-label">Delivery (standard, 3–5 days)</span><span>R65</span></div>
+        <div class="summary-row total"><span>Total</span><span id="del-total">R180</span></div>
+        <button class="btn-full" onclick="goToStep('payment')">Continue to payment →</button>
+        <button class="btn-outline" onclick="goToStep('design')">← Edit design</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT STEP -->
+<div id="step-payment" style="display:none">
+  <div class="page-layout">
+    <div class="card">
+      <div class="card-title">Payment</div>
+      <div class="payment-options">
+        <div class="payment-option selected" id="pay-payfast" onclick="selectPayment('payfast')">
+          <div class="pay-name">PayFast</div>
+          <div class="pay-sub">SA cards, EFT, Mobicred, Instant EFT</div>
+        </div>
+        <div class="payment-option" id="pay-paypal" onclick="selectPayment('paypal')">
+          <div class="pay-name">PayPal</div>
+          <div class="pay-sub">International cards &amp; PayPal balance</div>
+        </div>
+      </div>
+
+      <div id="card-details">
+        <div class="control-group">
+          <label class="control-label">Card number</label>
+          <input type="text" id="card-num" placeholder="4242 4242 4242 4242" maxlength="19" oninput="formatCard(this)">
+        </div>
+        <div class="control-group">
+          <label class="control-label">Name on card</label>
+          <input type="text" id="card-name" placeholder="As it appears on your card">
+        </div>
+        <div class="two-col">
+          <div class="control-group">
+            <label class="control-label">Expiry date</label>
+            <input type="text" id="card-exp" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)">
+          </div>
+          <div class="control-group">
+            <label class="control-label">CVV</label>
+            <input type="text" id="card-cvv" placeholder="123" maxlength="4">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-note">
+        🔒 Your payment is secured by PayFast. PrintCraft ZA never stores your card details.
+      </div>
+    </div>
+
+    <div class="preview-card">
+      <div class="card">
+        <div class="card-title">Order summary</div>
+        <div class="summary-row"><span class="summary-label" id="pay-product-label">Keychain × 1</span><span id="pay-product-price">R85</span></div>
+        <div class="summary-row"><span class="summary-label">Printing fee</span><span>R30</span></div>
+        <div class="summary-row"><span class="summary-label">Delivery (standard)</span><span>R65</span></div>
+        <div class="summary-row total"><span>Total to pay</span><span id="pay-total">R180</span></div>
+        <button class="btn-full" onclick="placeOrder()">Place order &amp; pay</button>
+        <button class="btn-outline" onclick="goToStep('delivery')">← Edit delivery</button>
+        <p style="font-size:12px;color:rgba(26,26,24,0.4);text-align:center;margin-top:12px">By placing your order you agree to our terms and conditions.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div id="step-success" style="display:none">
+  <div class="success-page">
+    <div class="success-icon">🎉</div>
+    <h1>Order placed!</h1>
+    <p>Thank you for your order. Here's your reference number:</p>
+    <div class="order-ref" id="orderRef">PCZ-000000</div>
+    <p style="margin-bottom:24px">We've sent a confirmation to your email address.</p>
+    <div class="success-steps">
+      <div class="success-step">Payment confirmed</div>
+      <div class="success-step">We'll start printing your item within 24 hours</div>
+      <div class="success-step">Your item will be shipped within 48 hours</div>
+      <div class="success-step">Standard delivery 3–5 business days via The Courier Guy</div>
+      <div class="success-step">You'll receive a tracking number by email once shipped</div>
+    </div>
+    <a href="index.html" style="display:inline-block;padding:14px 32px;background:var(--black);color:var(--white);border-radius:100px;text-decoration:none;font-weight:500;font-size:15px">Back to shop</a>
+    <p style="margin-top:20px;font-size:14px;color:rgba(26,26,24,0.5)">Questions? WhatsApp us or email hello@printcraftza.co.za</p>
+  </div>
+</div>
+
+<script>
+let state = {
+  product: 'keychain', productName: 'Keychain', productPrice: 85,
+  text: '', shape: 'rect', color: '#6c5ce7', textColor: '#fff',
+  qty: 1, payment: 'payfast'
+};
+
+const EMOJIS = { keychain:'🔑', nameplate:'🏷️', phone:'📱', planter:'🌿' };
+
+function selectProduct(id, price, name) {
+  state.product = id; state.productPrice = price; state.productName = name;
+  document.querySelectorAll('.product-option').forEach(el => el.classList.remove('selected'));
+  document.getElementById('opt-' + id).classList.add('selected');
+  updateSummary(); drawPreview();
+}
+
+function onNameInput() {
+  state.text = document.getElementById('nameInput').value;
+  document.getElementById('charCount').textContent = state.text.length;
+  drawPreview();
+}
+
+function setShape(s) {
+  state.shape = s;
+  document.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('shape-' + s).classList.add('active');
+  drawPreview();
+}
+
+function setColor(el) {
+  state.color = el.dataset.color;
+  state.textColor = el.dataset.text;
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  drawPreview();
+}
+
+function updateSummary() {
+  state.qty = parseInt(document.getElementById('qty')?.value) || 1;
+  const base = state.productPrice * state.qty;
+  const total = base + 30 + 65;
+  const label = state.productName + ' × ' + state.qty;
+  ['product-summary-label','del-product-label','pay-product-label'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = label;
+  });
+  ['product-summary-price','del-product-price','pay-product-price'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = 'R' + base;
+  });
+  ['total-display','del-total','pay-total'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = 'R' + total;
+  });
+}
+
+function goToStep(step) {
+  ['design','delivery','payment','success'].forEach(s => {
+    const el = document.getElementById('step-' + s);
+    if (el) el.style.display = s === step ? (s === 'design' ? 'block' : 'block') : 'none';
+  });
+  ['design','delivery','payment'].forEach((s, i) => {
+    const item = document.getElementById('stepItem-' + s);
+    const circle = document.getElementById('stepCircle-' + s);
+    if (!item) return;
+    const steps = ['design','delivery','payment'];
+    const currentIdx = steps.indexOf(step);
+    const thisIdx = steps.indexOf(s);
+    item.classList.remove('active','done');
+    if (thisIdx === currentIdx) item.classList.add('active');
+    else if (thisIdx < currentIdx) { item.classList.add('done'); if(circle) circle.textContent = '✓'; }
+    else { if(circle) circle.textContent = i + 1; }
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (step === 'design') setTimeout(drawPreview, 50);
+}
+
+function selectPayment(p) {
+  state.payment = p;
+  ['payfast','paypal'].forEach(id => {
+    document.getElementById('pay-' + id).classList.toggle('selected', id === p);
+  });
+}
+
+function formatCard(el) {
+  let v = el.value.replace(/\D/g,'').substring(0,16);
+  el.value = v.replace(/(.{4})/g,'$1 ').trim();
+}
+function formatExpiry(el) {
+  let v = el.value.replace(/\D/g,'');
+  if (v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2,4);
+  el.value = v;
+}
+
+function placeOrder() {
+  const ref = 'PCZ-' + Math.floor(100000 + Math.random() * 900000);
+  document.getElementById('orderRef').textContent = ref;
+  goToStep('success');
+}
+
+function drawPreview() {
+  const canvas = document.getElementById('previewCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = 320, H = 180;
+  canvas.width = W; canvas.height = H;
+  ctx.clearRect(0, 0, W, H);
+  const text = state.text || 'Your name';
+  const cx = W / 2, cy = H / 2 + 8;
+
+  if (state.shape === 'heart') {
+    ctx.save(); ctx.translate(cx, cy); ctx.scale(1.8, 1.8);
+    ctx.beginPath();
+    ctx.moveTo(0,-20); ctx.bezierCurveTo(0,-35,25,-35,25,-15);
+    ctx.bezierCurveTo(25,5,0,20,0,30); ctx.bezierCurveTo(0,20,-25,5,-25,-15);
+    ctx.bezierCurveTo(-25,-35,0,-35,0,-20);
+    ctx.fillStyle = state.color; ctx.fill(); ctx.restore();
+    ctx.fillStyle = state.textColor;
+    ctx.font = 'bold 18px DM Sans, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(text, cx, cy + 2);
+  } else if (state.shape === 'star') {
+    ctx.save(); ctx.translate(cx, cy);
+    ctx.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const r = i % 2 === 0 ? 60 : 28;
+      const angle = (i * Math.PI / 5) - Math.PI / 2;
+      if (i === 0) ctx.moveTo(r * Math.cos(angle), r * Math.sin(angle));
+      else ctx.lineTo(r * Math.cos(angle), r * Math.sin(angle));
+    }
+    ctx.closePath(); ctx.fillStyle = state.color; ctx.fill(); ctx.restore();
+    ctx.fillStyle = state.textColor;
+    ctx.font = 'bold 16px DM Sans, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(text, cx, cy);
+  } else {
+    const rr = state.shape === 'round' ? 28 : 8;
+    const w = Math.min(270, 48 + text.length * 14);
+    const h = 68; const x = cx - w / 2, y = cy - h / 2;
+    ctx.beginPath();
+    ctx.moveTo(x + rr, y); ctx.lineTo(x + w - rr, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + rr);
+    ctx.lineTo(x + w, y + h - rr);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - rr, y + h);
+    ctx.lineTo(x + rr, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - rr);
+    ctx.lineTo(x, y + rr);
+    ctx.quadraticCurveTo(x, y, x + rr, y);
+    ctx.fillStyle = state.color; ctx.fill();
+    ctx.fillStyle = state.textColor;
+    ctx.font = 'bold 22px DM Sans, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(text, cx, cy);
+  }
+
+  // Ring
+  ctx.beginPath();
+  ctx.arc(cx, cy - (state.shape === 'heart' ? 72 : 46), 9, 0, Math.PI * 2);
+  ctx.strokeStyle = state.color; ctx.lineWidth = 3; ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - (state.shape === 'heart' ? 63 : 37));
+  ctx.lineTo(cx, cy - (state.shape === 'heart' ? 50 : 24) - (state.shape === 'heart' ? 10 : 2));
+  ctx.strokeStyle = '#aaa'; ctx.lineWidth = 2; ctx.stroke();
+
+  // Emoji label
+  ctx.font = '16px serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(EMOJIS[state.product] || '', cx, cy + (state.shape === 'heart' ? 72 : 52));
+}
+
+// Read URL param for pre-selected product
+const params = new URLSearchParams(window.location.search);
+const preselect = params.get('product');
+if (preselect) {
+  const map = { keychain:[85,'Keychain'], nameplate:[120,'Name plate'], phone:[150,'Phone stand'], planter:[95,'Mini planter'] };
+  if (map[preselect]) selectProduct(preselect, map[preselect][0], map[preselect][1]);
+}
+
+updateSummary();
+setTimeout(drawPreview, 100);
+</script>
+</body>
+</html>
